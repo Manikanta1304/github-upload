@@ -1,3 +1,7 @@
+
+pip install "git+https://github.com/open-mmlab/cocoapi.git#subdirectory=pycocotools"
+
+
 # importing necessary packages
 import os
 import ast
