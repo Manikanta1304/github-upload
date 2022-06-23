@@ -1,6 +1,6 @@
 
 pip install "git+https://github.com/open-mmlab/cocoapi.git#subdirectory=pycocotools"
-
+pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html
 
 # importing necessary packages
 import os
