@@ -1,3 +1,58 @@
+from PIL import Image
+import os
+import pandas as pd
+
+columns = ['section_id', 'file_name', 'xmin', 'xmax', 'ymin', 'ymax', 'detection_score']
+df_results = pd.DataFrame(columns=columns)
+
+predictions = []
+confs = []
+lst = []
+
+for j in list(df.values.reshape(1,-1)[0]): #os.listdir('./runs/detect/exp5/'):
+    if j.split('.')[-1] == 'jpg':
+        picture = Image.open('./runs/detect/merged_sub/'+j)
+        dw, dh, = picture.size
+        try:
+            with open(f"./runs/detect/merged_sub/labels/{j.split('.')[0]+'.txt'}", 'r') as f:
+                line = f.readlines()
+                for dt in line:
+                    label, x, y, w, h, conf = dt.split(' ')
+                    if float(conf) > 0.5:
+                        conf = float(conf) #round(float(conf),2)
+                        confs.append(conf)
+                        l = int((float(x) - float(w) / 2) * dw)
+                        r = int((float(x) + float(w) / 2) * dw)
+                        t = int((float(y) - float(h) / 2) * dh)
+                        b = int((float(y) + float(h) / 2) * dh)
+                        lst.append([l,r,t,b])
+
+                        # # Loop over all detected boxes and convert the information into a dictionary
+                        for i in [l,r,t,b]:
+                            xmin, ymin, xmax, ymax = int(l), int(t), int(r), int(b)
+                            box_dict = dict(
+                            section_id=f'{j}@{xmin}-{xmax}-{ymin}-{ymax}',
+                            file_name=j,
+                            xmin=xmin,
+                            ymin=ymin,
+                            xmax=xmax,
+                            ymax=ymax,
+                            detection_score=conf)
+                        predictions.append(box_dict)
+        except:
+            pass
+
+# # Convert the dictionary into a dataframe with section_id as index
+prediction_df = pd.DataFrame(predictions)
+prediction_df.set_index('section_id', inplace=True)
+# prediction_df
+prediction_df.to_csv('../first_and_fifth_yolo_pred.csv', sep=';')
+
+
+
+
+
+
 
 pip install "git+https://github.com/open-mmlab/cocoapi.git#subdirectory=pycocotools"
 pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html
