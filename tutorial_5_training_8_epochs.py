@@ -1,3 +1,39 @@
+#@markdown example of data pipeline editing (i.e. image scale, augmentations)
+if False:
+    train_img_scale= [(1333, 480), (1333, 800)] 
+    train_pipeline = [
+        dict(type='LoadImageFromFile', to_float32=True), 
+        # above, "to_float32=True" required by PhotoMetricDistortion, False otherwise
+        dict(type='LoadAnnotations', with_bbox=True),
+        dict(
+            type='Resize',
+            img_scale=train_img_scale,
+            multiscale_mode='range',
+            keep_ratio=True),
+        # dict(type='RandomCrop', crop_size=(512, 512)),
+        # dict(type='RandomCenterCropPad', crop_size=(512, 512)),
+        # dict(type='PhotoMetricDistortion'),
+
+        dict(type='RandomFlip', flip_ratio=0.5),
+        dict(type='RandomFlip', flip_ratio=0.25, direction = 'vertical'),
+        dict(
+            type='Normalize',
+            mean=[123.675, 116.28, 103.53],
+            std=[58.395, 57.12, 57.375],
+            to_rgb=True),
+        dict(type='Pad', size_divisor=32),
+        dict(type='DefaultFormatBundle'),
+        dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+    ]
+
+    cfg.data.train.pipeline = train_pipeline
+    cfg.data.train.pipeline
+
+
+
+------------------------------------------------------------------------------
+
+
 import logging
 import mmdet
 import mmcv
